@@ -1,29 +1,33 @@
 import fetch from 'isomorphic-unfetch';
-// import { withRouter } from 'next/router';
 
-import { Layout } from '../components';
+import loadDB from '../lib/load-db';
+import { Layout, Styled } from '../components';
 
-const Post = ({ name, summary, image }) => (
+const Post = ({ item: { name, url, summary, image } }) => (
   <Layout>
-    <h1>{name}</h1>
-    <p>{summary.replace(/<[/]?p>/g, '')}</p>
-    <img src={image.medium} />
+    <Styled.H1>{name}</Styled.H1>
+    {url && (
+      <Styled.P>
+        URL:{' '}
+        <Styled.A target="_blank" href={url}>
+          {url}
+        </Styled.A>
+      </Styled.P>
+    )}
+    {summary && <Styled.P>{summary.replace(/<[/]?p>/g, '')}</Styled.P>}
+    {image && <img src={image.medium} />}
   </Layout>
 );
 
 Post.getInitialProps = async ({ query: { id } }) => {
-  const res = await fetch(`https://api.tvmaze.com/shows/${id}`);
-  const show = await res.json();
+  const db = await loadDB();
+  let item = await db
+    .child('item')
+    .child(id)
+    .once('value');
+  item = item.val();
 
-  //   await new Promise(resolve =>
-  //     setTimeout(() => {
-  //       console.log('timeout end');
-  //       resolve();
-  //     }, 2000)
-  //   );
-  console.log(`Fetched show: ${show.name}`);
-
-  return show;
+  return { item };
 };
 
 export default Post;

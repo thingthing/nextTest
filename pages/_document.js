@@ -16,6 +16,10 @@ export default class MyDocument extends Document {
       <html>
         <Head>
           <title>My page</title>
+          <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/styles/atom-one-light.min.css"
+            rel="stylesheet"
+          />
           {this.props.styleTags}
         </Head>
         <body>

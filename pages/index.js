@@ -1,26 +1,33 @@
 import fetch from 'isomorphic-unfetch';
 import { Layout, PostLink, Styled } from '../components';
+import loadDB from '../lib/load-db';
 
-const Index = ({ shows }) => (
+const Index = ({ stories }) => (
   <Layout>
-    <Styled.H1>Batman TV Shows</Styled.H1>
+    <Styled.H1>Hacker News - Latest</Styled.H1>
     <Styled.UL>
-      {shows.map(({ show: { id, name } }) => (
-        <PostLink key={id} id={id} title={name} />
-      ))}
+      {stories.map(story => <PostLink key={story.id} {...story} />)}
     </Styled.UL>
   </Layout>
 );
 
 Index.getInitialProps = async () => {
-  const res = await fetch('https://api.tvmaze.com/search/shows?q=batman');
-  const data = await res.json();
+  const db = await loadDB();
 
-  console.log(`Show data fetched. Count: ${data.length}`);
-
-  return {
-    shows: data,
-  };
+  const ids = await db.child('topstories').once('value');
+  let stories = await Promise.all(
+    ids
+      .val()
+      .slice(0, 10)
+      .map(id =>
+        db
+          .child('item')
+          .child(id)
+          .once('value')
+      )
+  );
+  stories = stories.map(s => s.val());
+  return { stories };
 };
 
 export default Index;

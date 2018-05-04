@@ -4,6 +4,10 @@ export const H1 = styled.h1`
   font-family: Arial;
 `;
 
+export const P = styled.p`
+  font-family: Arial;
+`;
+
 export const A = styled.a`
   font-family: Arial;
   text-decoration: none;
